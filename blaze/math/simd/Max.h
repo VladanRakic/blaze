@@ -78,6 +78,10 @@ BLAZE_ALWAYS_INLINE const SIMDint8 max( const SIMDint8& a, const SIMDint8& b ) n
 {
    return _mm_max_epi8( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_s8( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -106,6 +110,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint8 max( const SIMDuint8& a, const SIMDuint8& b 
 #elif BLAZE_SSE2_MODE
 {
    return _mm_max_epu8( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_u8( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -144,6 +152,10 @@ BLAZE_ALWAYS_INLINE const SIMDint16 max( const SIMDint16& a, const SIMDint16& b 
 {
    return _mm_max_epi16( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_s16( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -172,6 +184,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint16 max( const SIMDuint16& a, const SIMDuint16&
 #elif BLAZE_SSE4_MODE
 {
    return _mm_max_epu16( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_u16( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -210,6 +226,10 @@ BLAZE_ALWAYS_INLINE const SIMDint32 max( const SIMDint32& a, const SIMDint32& b 
 {
    return _mm_max_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_s32( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -238,6 +258,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint32 max( const SIMDuint32& a, const SIMDuint32&
 #elif BLAZE_SSE4_MODE
 {
    return _mm_max_epu32( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_u32( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -279,6 +303,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat
 {
    return _mm_max_ps( (*a).eval().value, (*b).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_f32( (*a).eval().value, (*b).eval().value );
+}
 #else
 = delete;
 #endif
@@ -318,6 +346,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble
 #elif BLAZE_SSE2_MODE
 {
    return _mm_max_pd( (*a).eval().value, (*b).eval().value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vmaxq_f64( (*a).eval().value, (*b).eval().value );
 }
 #else
 = delete;

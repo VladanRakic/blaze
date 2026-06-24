@@ -83,6 +83,15 @@ BLAZE_ALWAYS_INLINE SIMDint8 sign( const SIMDint8& a ) noexcept
 {
    return _mm_sign_epi8( _mm_set1_epi8( 1 ), a.value );
 }
+#elif BLAZE_NEON_MODE
+{
+   const int8x16_t zero = vdupq_n_s8( 0 );
+   const int8x16_t abs_a = vabsq_s8( a.value );
+   const uint8x16_t nonzero = vcgtq_s8( abs_a, zero );
+   const int8x16_t pos = vandq_s8( vreinterpretq_s8_u8( vcgtq_s8( a.value, zero ) ), vdupq_n_s8( 1 ) );
+   const int8x16_t neg = vandq_s8( vreinterpretq_s8_u8( vcgtq_s8( zero, a.value ) ), vdupq_n_s8( -1 ) );
+   return vandq_s8( vreinterpretq_s8_u8( nonzero ), vorrq_s8( pos, neg ) );
+}
 #else
 = delete;
 #endif
@@ -125,6 +134,15 @@ BLAZE_ALWAYS_INLINE SIMDint16 sign( const SIMDint16& a ) noexcept
 #elif BLAZE_SSSE3_MODE
 {
    return _mm_sign_epi16( _mm_set1_epi16( 1 ), a.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   const int16x8_t zero = vdupq_n_s16( 0 );
+   const int16x8_t abs_a = vabsq_s16( a.value );
+   const uint16x8_t nonzero = vcgtq_s16( abs_a, zero );
+   const int16x8_t pos = vandq_s16( vreinterpretq_s16_u16( vcgtq_s16( a.value, zero ) ), vdupq_n_s16( 1 ) );
+   const int16x8_t neg = vandq_s16( vreinterpretq_s16_u16( vcgtq_s16( zero, a.value ) ), vdupq_n_s16( -1 ) );
+   return vandq_s16( vreinterpretq_s16_u16( nonzero ), vorrq_s16( pos, neg ) );
 }
 #else
 = delete;
@@ -169,6 +187,15 @@ BLAZE_ALWAYS_INLINE SIMDint32 sign( const SIMDint32& a ) noexcept
 {
    return _mm_sign_epi32( _mm_set1_epi32( 1 ), a.value );
 }
+#elif BLAZE_NEON_MODE
+{
+   const int32x4_t zero = vdupq_n_s32( 0 );
+   const int32x4_t abs_a = vabsq_s32( a.value );
+   const uint32x4_t nonzero = vcgtq_s32( abs_a, zero );
+   const int32x4_t pos = vandq_s32( vreinterpretq_s32_u32( vcgtq_s32( a.value, zero ) ), vdupq_n_s32( 1 ) );
+   const int32x4_t neg = vandq_s32( vreinterpretq_s32_u32( vcgtq_s32( zero, a.value ) ), vdupq_n_s32( -1 ) );
+   return vandq_s32( vreinterpretq_s32_u32( nonzero ), vorrq_s32( pos, neg ) );
+}
 #else
 = delete;
 #endif
@@ -203,6 +230,15 @@ BLAZE_ALWAYS_INLINE SIMDint64 sign( const SIMDint64& a ) noexcept
    const __mmask8 mask2( _mm512_cmplt_epi64_mask( a.value, zero ) );
    const __m512i  xmm1 ( _mm512_mask_blend_epi64( mask1, zero, _mm512_set1_epi64( 1L ) ) );
    return _mm512_mask_blend_epi64( mask2, xmm1, _mm512_set1_epi64( -1L ) );
+}
+#elif BLAZE_NEON_MODE
+{
+   const int64x2_t zero = vdupq_n_s64( 0 );
+   const int64x2_t abs_a = vabsq_s64( a.value );
+   const uint64x2_t nonzero = vcgtq_s64( abs_a, zero );
+   const int64x2_t pos = vandq_s64( vreinterpretq_s64_u64( vcgtq_s64( a.value, zero ) ), vdupq_n_s64( 1 ) );
+   const int64x2_t neg = vandq_s64( vreinterpretq_s64_u64( vcgtq_s64( zero, a.value ) ), vdupq_n_s64( -1 ) );
+   return vandq_s64( vreinterpretq_s64_u64( nonzero ), vorrq_s64( pos, neg ) );
 }
 #else
 = delete;
@@ -257,6 +293,15 @@ BLAZE_ALWAYS_INLINE SIMDfloat sign( const SIMDfloat& a ) noexcept
    const __m128 xmm1 ( _mm_blendv_ps( a.value, _mm_set1_ps( 1.0F ), mask1 ) );
    return _mm_blendv_ps( xmm1, _mm_set1_ps( -1.0F ), mask2 );
 }
+#elif BLAZE_NEON_MODE
+{
+   const float32x4_t zero = vdupq_n_f32( 0.0F );
+   const float32x4_t ones = vdupq_n_f32( 1.0F );
+   const float32x4_t neg_ones = vdupq_n_f32( -1.0F );
+   const uint32x4_t gt = vcgtq_f32( a.value, zero );
+   const uint32x4_t lt = vcltq_f32( a.value, zero );
+   return vbslq_f32( gt, ones, vbslq_f32( lt, neg_ones, zero ) );
+}
 #else
 = delete;
 #endif
@@ -309,6 +354,15 @@ BLAZE_ALWAYS_INLINE SIMDdouble sign( const SIMDdouble& a ) noexcept
    const __m128d mask2( _mm_cmplt_pd( a.value, zero ) );
    const __m128d xmm1 ( _mm_blendv_pd( a.value, _mm_set1_pd( 1.0 ), mask1 ) );
    return _mm_blendv_pd( xmm1, _mm_set1_pd( -1.0 ), mask2 );
+}
+#elif BLAZE_NEON_MODE
+{
+   const float64x2_t zero = vdupq_n_f64( 0.0 );
+   const float64x2_t ones = vdupq_n_f64( 1.0 );
+   const float64x2_t neg_ones = vdupq_n_f64( -1.0 );
+   const uint64x2_t gt = vcgtq_f64( a.value, zero );
+   const uint64x2_t lt = vcltq_f64( a.value, zero );
+   return vbslq_f64( gt, ones, vbslq_f64( lt, neg_ones, zero ) );
 }
 #else
 = delete;

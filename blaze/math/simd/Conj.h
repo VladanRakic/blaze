@@ -114,6 +114,11 @@ BLAZE_ALWAYS_INLINE const SIMDcint16 conj( const SIMDcint16& a ) noexcept
 {
    return _mm_mullo_epi16( a.value, _mm_set_epi16( -1, 1, -1, 1, -1, 1, -1, 1 ) );
 }
+#elif BLAZE_NEON_MODE
+{
+   const int16_t signs[8] = { 1, -1, 1, -1, 1, -1, 1, -1 };
+   return vmulq_s16( a.value, vld1q_s16( signs ) );
+}
 #else
 = delete;
 #endif
@@ -164,6 +169,11 @@ BLAZE_ALWAYS_INLINE const SIMDcint32 conj( const SIMDcint32& a ) noexcept
 #elif BLAZE_SSE4_MODE
 {
    return _mm_mullo_epi32( a.value, _mm_set_epi32( -1, 1, -1, 1 ) );
+}
+#elif BLAZE_NEON_MODE
+{
+   const int32_t signs[4] = { 1, -1, 1, -1 };
+   return vmulq_s32( a.value, vld1q_s32( signs ) );
 }
 #else
 = delete;
@@ -259,6 +269,11 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat conj( const SIMDcfloat& a ) noexcept
 {
    return _mm_mul_ps( a.value, _mm_set_ps( -1.0F, 1.0F, -1.0F, 1.0F ) );
 }
+#elif BLAZE_NEON_MODE
+{
+   const float signs[4] = { 1.0F, -1.0F, 1.0F, -1.0F };
+   return vmulq_f32( a.value, vld1q_f32( signs ) );
+}
 #else
 = delete;
 #endif
@@ -309,6 +324,11 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble conj( const SIMDcdouble& a ) noexcept
 #elif BLAZE_SSE2_MODE
 {
    return _mm_mul_pd( a.value, _mm_set_pd( -1.0, 1.0 ) );
+}
+#elif BLAZE_NEON_MODE
+{
+   const double signs[2] = { 1.0, -1.0 };
+   return vmulq_f64( a.value, vld1q_f64( signs ) );
 }
 #else
 = delete;

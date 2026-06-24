@@ -106,6 +106,10 @@ struct SIMDf32FmaddExpr
    {
       return _mm_fmadd_ps( a_.eval().value, b_.eval().value, c_.eval().value );
    }
+#elif BLAZE_NEON_MODE
+   {
+      return vfmaq_f32( c_.eval().value, a_.eval().value, b_.eval().value );
+   }
 #else
    = delete;
 #endif
@@ -169,6 +173,10 @@ struct SIMDf32FmsubExpr
 #elif BLAZE_FMA_MODE && BLAZE_SSE2_MODE
    {
       return _mm_fmsub_ps( a_.eval().value, b_.eval().value, c_.eval().value );
+   }
+#elif BLAZE_NEON_MODE
+   {
+      return vfmaq_f32( vnegq_f32( c_.eval().value ), a_.eval().value, b_.eval().value );
    }
 #else
    = delete;
@@ -820,6 +828,10 @@ struct SIMDf64FmaddExpr
    {
       return _mm_fmadd_pd( a_.eval().value, b_.eval().value, c_.eval().value );
    }
+#elif BLAZE_NEON_MODE
+   {
+      return vfmaq_f64( c_.eval().value, a_.eval().value, b_.eval().value );
+   }
 #else
    = delete;
 #endif
@@ -883,6 +895,10 @@ struct SIMDf64FmsubExpr
 #elif BLAZE_FMA_MODE && BLAZE_SSE2_MODE
    {
       return _mm_fmsub_pd( a_.eval().value, b_.eval().value, c_.eval().value );
+   }
+#elif BLAZE_NEON_MODE
+   {
+      return vfmaq_f64( vnegq_f64( c_.eval().value ), a_.eval().value, b_.eval().value );
    }
 #else
    = delete;

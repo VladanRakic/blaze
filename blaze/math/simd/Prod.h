@@ -81,6 +81,9 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> prod( const SIMDi8<T>& a ) noexcept
 #elif BLAZE_SSE2_MODE
    return (*a)[ 0] * (*a)[ 1] * (*a)[ 2] * (*a)[ 3] * (*a)[ 4] * (*a)[ 5] * (*a)[ 6] * (*a)[ 7] *
           (*a)[ 8] * (*a)[ 9] * (*a)[10] * (*a)[11] * (*a)[12] * (*a)[13] * (*a)[14] * (*a)[15];
+#elif BLAZE_NEON_MODE
+   return (*a)[ 0] * (*a)[ 1] * (*a)[ 2] * (*a)[ 3] * (*a)[ 4] * (*a)[ 5] * (*a)[ 6] * (*a)[ 7] *
+          (*a)[ 8] * (*a)[ 9] * (*a)[10] * (*a)[11] * (*a)[12] * (*a)[13] * (*a)[14] * (*a)[15];
 #else
    return (*a).value;
 #endif
@@ -107,6 +110,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> prod( const SIMDci8<T>& a ) noexcept
    return (*a)[0] * (*a)[1] * (*a)[ 2] * (*a)[ 3] * (*a)[ 4] * (*a)[ 5] * (*a)[ 6] * (*a)[ 7] *
           (*a)[8] * (*a)[9] * (*a)[10] * (*a)[11] * (*a)[12] * (*a)[13] * (*a)[14] * (*a)[15];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3] * (*a)[4] * (*a)[5] * (*a)[6] * (*a)[7];
+#elif BLAZE_NEON_MODE
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3] * (*a)[4] * (*a)[5] * (*a)[6] * (*a)[7];
 #else
    return (*a).value;
@@ -143,6 +148,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> prod( const SIMDi16<T>& a ) noexcept
           (*a)[ 8] * (*a)[ 9] * (*a)[10] * (*a)[11] * (*a)[12] * (*a)[13] * (*a)[14] * (*a)[15];
 #elif BLAZE_SSE2_MODE
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3] * (*a)[4] * (*a)[5] * (*a)[6] * (*a)[7];
+#elif BLAZE_NEON_MODE
+   return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3] * (*a)[4] * (*a)[5] * (*a)[6] * (*a)[7];
 #else
    return (*a).value;
 #endif
@@ -166,6 +173,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> prod( const SIMDci16<T>& a ) noexcept
 #elif BLAZE_AVX2_MODE
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3] * (*a)[4] * (*a)[5] * (*a)[6] * (*a)[7];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3];
+#elif BLAZE_NEON_MODE
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3];
 #else
    return (*a).value;
@@ -204,6 +213,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> prod( const SIMDi32<T>& a ) noexcept
    return _mm_extract_epi32( _mm_mullo_epi32( b, _mm_shuffle_epi32( b, 1U ) ), 0 );
 #elif BLAZE_SSE2_MODE
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3];
+#elif BLAZE_NEON_MODE
+   return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3];
 #else
    return (*a).value;
 #endif
@@ -226,6 +237,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> prod( const SIMDci32<T>& a ) noexcept
 #elif BLAZE_AVX2_MODE
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0] * (*a)[1];
+#elif BLAZE_NEON_MODE
    return (*a)[0] * (*a)[1];
 #else
    return (*a).value;
@@ -258,6 +271,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> prod( const SIMDi64<T>& a ) noexcept
    return (*a)[0] * (*a)[1] * (*a)[2] * (*a)[3];
 #elif BLAZE_SSE2_MODE
    return (*a)[0] * (*a)[1];
+#elif BLAZE_NEON_MODE
+   return (*a)[0] * (*a)[1];
 #else
    return (*a).value;
 #endif
@@ -280,6 +295,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> prod( const SIMDci64<T>& a ) noexcept
 #elif BLAZE_AVX2_MODE
    return (*a)[0] * (*a)[1];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0];
+#elif BLAZE_NEON_MODE
    return (*a)[0];
 #else
    return (*a).value;
@@ -314,6 +331,11 @@ BLAZE_ALWAYS_INLINE float prod( const SIMDfloat& a ) noexcept
 #elif BLAZE_SSE_MODE
    const __m128 b = _mm_mul_ps( a.value, _mm_movehl_ps( a.value, a.value ) );
    return _mm_cvtss_f32( _mm_mul_ss( b, _mm_shuffle_ps( b, b, 1U ) ) );
+#elif BLAZE_NEON_MODE
+   const float32x2_t low  = vget_low_f32( a.value );
+   const float32x2_t high = vget_high_f32( a.value );
+   const float32x2_t p    = vmul_f32( low, high );
+   return vget_lane_f32( vmul_f32( p, vrev64_f32( p ) ), 0 );
 #else
    return a.value;
 #endif
@@ -335,6 +357,8 @@ BLAZE_ALWAYS_INLINE const complex<float> prod( const SIMDcfloat& a ) noexcept
 #elif BLAZE_AVX_MODE
    return a[0] * a[1] * a[2] * a[3];
 #elif BLAZE_SSE_MODE
+   return a[0] * a[1];
+#elif BLAZE_NEON_MODE
    return a[0] * a[1];
 #else
    return a.value;
@@ -367,6 +391,8 @@ BLAZE_ALWAYS_INLINE double prod( const SIMDdouble& a ) noexcept
    return _mm_cvtsd_f64( _mm256_castpd256_pd128( _mm256_mul_pd( b, _mm256_shuffle_pd( b, b, 1 ) ) ) );
 #elif BLAZE_SSE2_MODE
    return _mm_cvtsd_f64( _mm_mul_sd( a.value, _mm_unpackhi_pd( a.value, a.value ) ) );
+#elif BLAZE_NEON_MODE
+   return vgetq_lane_f64( a.value, 0 ) * vgetq_lane_f64( a.value, 1 );
 #else
    return a.value;
 #endif
@@ -388,6 +414,8 @@ BLAZE_ALWAYS_INLINE const complex<double> prod( const SIMDcdouble& a ) noexcept
 #elif BLAZE_AVX_MODE
    return a[0] * a[1];
 #elif BLAZE_SSE2_MODE
+   return a[0];
+#elif BLAZE_NEON_MODE
    return a[0];
 #else
    return a.value;

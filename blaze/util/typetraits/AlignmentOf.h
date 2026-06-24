@@ -79,6 +79,8 @@ struct AlignmentOfHelper
       ( IsVectorizable_v<T> )?( 32UL ):( defaultAlignment );
 #elif BLAZE_SSE2_MODE
       ( IsVectorizable_v<T> )?( 16UL ):( defaultAlignment );
+#elif BLAZE_NEON_MODE
+      ( IsVectorizable_v<T> )?( 16UL ):( defaultAlignment );
 #else
       defaultAlignment;
 #endif
@@ -105,6 +107,8 @@ struct AlignmentOfHelper<float>
       32UL;
 #elif BLAZE_SSE_MODE
       16UL;
+#elif BLAZE_NEON_MODE
+      16UL;
 #else
       std::alignment_of<float>::value;
 #endif
@@ -130,6 +134,8 @@ struct AlignmentOfHelper<double>
 #elif BLAZE_AVX_MODE
       32UL;
 #elif BLAZE_SSE2_MODE
+      16UL;
+#elif BLAZE_NEON_MODE
       16UL;
 #else
       std::alignment_of<double>::value;

@@ -90,6 +90,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat ceil( const SIMDf32<T>& a ) noexcept
 {
    return _mm_ceil_ps( (*a).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vrndpq_f32( (*a).eval().value );
+}
 #else
 = delete;
 #endif
@@ -137,6 +141,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble ceil( const SIMDf64<T>& a ) noexcept
 #elif BLAZE_SSE4_MODE
 {
    return _mm_ceil_pd( (*a).eval().value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vrndpq_f64( (*a).eval().value );
 }
 #else
 = delete;

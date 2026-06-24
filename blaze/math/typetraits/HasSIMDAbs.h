@@ -71,18 +71,21 @@ using HasSIMDAbsHelper =
                      ( bool( BLAZE_AVX2_MODE     ) && sizeof(T) <= 4UL ) ||
                      ( bool( BLAZE_MIC_MODE      ) && sizeof(T) >= 4UL ) ||
                      ( bool( BLAZE_AVX512BW_MODE ) && sizeof(T) <= 2UL ) ||
-                     ( bool( BLAZE_AVX512F_MODE  ) && sizeof(T) >= 4UL ) ) ) ||
+                     ( bool( BLAZE_AVX512F_MODE  ) && sizeof(T) >= 4UL ) ||
+                     ( bool( BLAZE_NEON_MODE ) ) ) ) ||
                  ( IsFloat_v<T> &&
                    ( bool( BLAZE_SSE2_MODE    ) ||
                      bool( BLAZE_AVX_MODE     ) ||
                      bool( BLAZE_MIC_MODE     ) ||
-                     bool( BLAZE_AVX512F_MODE ) ) ) ||
+                     bool( BLAZE_AVX512F_MODE ) ||
+                     bool( BLAZE_NEON_MODE ) ) ) ||
                  ( IsDouble_v<T> &&
                    !( bool( BLAZE_GNU_COMPILER ) && ( bool( BLAZE_MIC_MODE ) || bool( BLAZE_AVX512F_MODE ) ) ) &&
                    ( bool( BLAZE_SSE2_MODE    ) ||
                      bool( BLAZE_AVX_MODE     ) ||
                      bool( BLAZE_MIC_MODE     ) ||
-                     bool( BLAZE_AVX512F_MODE ) ) ) >;
+                     bool( BLAZE_AVX512F_MODE ) ||
+                     bool( BLAZE_NEON_MODE ) ) ) >;
 /*! \endcond */
 //*************************************************************************************************
 

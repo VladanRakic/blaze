@@ -90,6 +90,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat floor( const SIMDf32<T>& a ) noexcept
 {
     return _mm_floor_ps((*a).eval().value);
 }
+#elif BLAZE_NEON_MODE
+{
+   return vrndmq_f32( (*a).eval().value );
+}
 #else
 = delete;
 #endif
@@ -137,6 +141,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble floor( const SIMDf64<T>& a ) noexcept
 #elif BLAZE_SSE4_MODE
 {
     return _mm_floor_pd((*a).eval().value);
+}
+#elif BLAZE_NEON_MODE
+{
+   return vrndmq_f64( (*a).eval().value );
 }
 #else
 = delete;

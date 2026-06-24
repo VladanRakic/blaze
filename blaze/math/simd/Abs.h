@@ -76,6 +76,10 @@ BLAZE_ALWAYS_INLINE const SIMDint8 abs( const SIMDint8& a ) noexcept
 {
    return _mm_abs_epi8( a.value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vabsq_s8( a.value );
+}
 #else
 = delete;
 #endif
@@ -111,6 +115,10 @@ BLAZE_ALWAYS_INLINE const SIMDint16 abs( const SIMDint16& a ) noexcept
 #elif BLAZE_SSSE3_MODE
 {
    return _mm_abs_epi16( a.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vabsq_s16( a.value );
 }
 #else
 = delete;
@@ -148,6 +156,10 @@ BLAZE_ALWAYS_INLINE const SIMDint32 abs( const SIMDint32& a ) noexcept
 {
    return _mm_abs_epi32( a.value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vabsq_s32( a.value );
+}
 #else
 = delete;
 #endif
@@ -175,6 +187,10 @@ BLAZE_ALWAYS_INLINE const SIMDint64 abs( const SIMDint64& a ) noexcept
 #if BLAZE_AVX512F_MODE || BLAZE_MIC_MODE
 {
    return _mm512_abs_epi64( a.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vabsq_s64( a.value );
 }
 #else
 = delete;
@@ -214,6 +230,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat abs( const SIMDf32<T>& a ) noexcept
 {
    const __m128 mask( _mm_castsi128_ps( _mm_set1_epi32( 0x80000000 ) ) );
    return _mm_andnot_ps( mask, (*a).eval().value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vabsq_f32( (*a).eval().value );
 }
 #else
 = delete;
@@ -256,6 +276,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble abs( const SIMDf64<T>& a ) noexcept
 {
    const __m128d mask( _mm_castsi128_pd( _mm_set_epi32( 0x80000000, 0x0, 0x80000000, 0x0 ) ) );
    return _mm_andnot_pd( mask, (*a).eval().value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vabsq_f64( (*a).eval().value );
 }
 #else
 = delete;

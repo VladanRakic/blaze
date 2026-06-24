@@ -76,6 +76,11 @@ BLAZE_ALWAYS_INLINE const SIMDfloat invsqrt( const SIMDf32<T>& a ) noexcept
 {
    return _mm_rsqrt_ps( (*a).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   const float32x4_t val = (*a).eval().value;
+   return vdivq_f32( vdupq_n_f32( 1.0F ), vsqrtq_f32( val ) );
+}
 #else
 = delete;
 #endif
@@ -112,6 +117,11 @@ BLAZE_ALWAYS_INLINE const SIMDdouble invsqrt( const SIMDf64<T>& a ) noexcept
 #elif BLAZE_SVML_MODE && BLAZE_SSE_MODE
 {
    return _mm_invsqrt_pd( (*a).eval().value );
+}
+#elif BLAZE_NEON_MODE
+{
+   const float64x2_t val = (*a).eval().value;
+   return vdivq_f64( vdupq_n_f64( 1.0 ), vsqrtq_f64( val ) );
 }
 #else
 = delete;

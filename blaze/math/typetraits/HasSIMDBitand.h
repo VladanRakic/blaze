@@ -69,7 +69,8 @@ using HasSIMDBitandHelper =
                  ( ( bool( BLAZE_SSE2_MODE    ) ) ||
                    ( bool( BLAZE_AVX2_MODE    ) ) ||
                    ( bool( BLAZE_MIC_MODE     ) ) ||
-                   ( bool( BLAZE_AVX512F_MODE ) ) ) >;
+                   ( bool( BLAZE_AVX512F_MODE ) ) ||
+                   ( bool( BLAZE_NEON_MODE    ) ) ) >;
 /*! \endcond */
 //*************************************************************************************************
 

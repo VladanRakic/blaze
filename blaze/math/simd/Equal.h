@@ -43,6 +43,7 @@
 #include <blaze/math/Accuracy.h>
 #include <blaze/math/RelaxationFlag.h>
 #include <blaze/math/simd/BasicTypes.h>
+#include <blaze/math/simd/NeonIntegral.h>
 #include <blaze/system/Compiler.h>
 #include <blaze/system/Inline.h>
 #include <blaze/system/Vectorization.h>
@@ -82,6 +83,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDi8<T>& a, const SIMDi8<T>& b ) noexcep
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi8( (*a).value, (*b).value ) ) == int(0xffff);
 }
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -114,6 +119,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDci8<T>& a, const SIMDci8<T>& b ) noexc
 #elif BLAZE_SSE2_MODE
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi8( (*a).value, (*b).value ) ) == int(0xffff);
+}
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -191,6 +200,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDi16<T>& a, const SIMDi16<T>& b ) noexc
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi16( (*a).value, (*b).value ) ) == int(0xffff);
 }
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -223,6 +236,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDci16<T>& a, const SIMDci16<T>& b ) noe
 #elif BLAZE_SSE2_MODE
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi16( (*a).value, (*b).value ) ) == int(0xffff);
+}
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -301,6 +318,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDi32<T>& a, const SIMDi32<T>& b ) noexc
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi32( (*a).value, (*b).value ) ) == int(0xffff);
 }
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -333,6 +354,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDci32<T>& a, const SIMDci32<T>& b ) noe
 #elif BLAZE_SSE2_MODE
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi32( (*a).value, (*b).value ) ) == int(0xffff);
+}
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -412,6 +437,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDi64<T>& a, const SIMDi64<T>& b ) noexc
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi64( (*a).value, (*b).value ) ) == int(0xffff);
 }
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -444,6 +473,10 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDci64<T>& a, const SIMDci64<T>& b ) noe
 #elif BLAZE_SSE4_MODE
 {
    return _mm_movemask_epi8( _mm_cmpeq_epi64( (*a).value, (*b).value ) ) == int(0xffff);
+}
+#elif BLAZE_NEON_MODE
+{
+   return neon_integral::AllEqual<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -557,6 +590,19 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDfloat& a, const SIMDfloat& b ) noexcep
       return _mm_movemask_ps( _mm_cmpeq_ps( a.value, b.value ) ) == 0xf;
    }
 }
+#elif BLAZE_NEON_MODE
+{
+   if( RF == relaxed ) {
+      const float32x4_t accu( vdupq_n_f32( static_cast<float>( accuracy ) ) );
+
+      const float32x4_t xmm1( vabsq_f32( vsubq_f32( a.value, b.value ) ) );
+      const float32x4_t xmm2( vmaxq_f32( accu, vmulq_f32( accu, vabsq_f32( a.value ) ) ) );
+      return vminvq_u32( vcleq_f32( xmm1, xmm2 ) ) == 0xFFFFFFFFU;
+   }
+   else {
+      return vminvq_u32( vceqq_f32( a.value, b.value ) ) == 0xFFFFFFFFU;
+   }
+}
 #else
 = delete;
 #endif
@@ -625,6 +671,19 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDcfloat& a, const SIMDcfloat& b ) noexc
       return _mm_movemask_ps( _mm_cmpeq_ps( a.value, b.value ) ) == 0xf;
    }
 }
+#elif BLAZE_NEON_MODE
+{
+   if( RF == relaxed ) {
+      const float32x4_t accu( vdupq_n_f32( static_cast<float>( accuracy ) ) );
+
+      const float32x4_t xmm1( vabsq_f32( vsubq_f32( a.value, b.value ) ) );
+      const float32x4_t xmm2( vmaxq_f32( accu, vmulq_f32( accu, vabsq_f32( a.value ) ) ) );
+      return vminvq_u32( vcleq_f32( xmm1, xmm2 ) ) == 0xFFFFFFFFU;
+   }
+   else {
+      return vminvq_u32( vceqq_f32( a.value, b.value ) ) == 0xFFFFFFFFU;
+   }
+}
 #else
 = delete;
 #endif
@@ -659,6 +718,10 @@ BLAZE_ALWAYS_INLINE bool operator==( const SIMDf32<T1>& a, const SIMDf32<T2>& b 
 {
    return _mm_movemask_ps( _mm_cmpeq_ps( (*a).eval().value, (*b).eval().value ) ) == 0xf;
 }
+#elif BLAZE_NEON_MODE
+{
+   return vminvq_u32( vceqq_f32( (*a).eval().value, (*b).eval().value ) ) == 0xFFFFFFFFU;
+}
 #else
 = delete;
 #endif
@@ -689,6 +752,10 @@ BLAZE_ALWAYS_INLINE bool operator==( const SIMDcfloat& a, const SIMDcfloat& b ) 
 #elif BLAZE_SSE_MODE
 {
    return _mm_movemask_ps( _mm_cmpeq_ps( a.value, b.value ) ) == 0xf;
+}
+#elif BLAZE_NEON_MODE
+{
+   return vminvq_u32( vceqq_f32( a.value, b.value ) ) == 0xFFFFFFFFU;
 }
 #else
 = delete;
@@ -766,6 +833,19 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDdouble& a, const SIMDdouble& b ) noexc
       return _mm_movemask_pd( _mm_cmpeq_pd( a.value, b.value ) ) == 0x3;
    }
 }
+#elif BLAZE_NEON_MODE
+{
+   if( RF == relaxed ) {
+      const float64x2_t accu( vdupq_n_f64( static_cast<double>( accuracy ) ) );
+
+      const float64x2_t xmm1( vabsq_f64( vsubq_f64( a.value, b.value ) ) );
+      const float64x2_t xmm2( vmaxq_f64( accu, vmulq_f64( accu, vabsq_f64( a.value ) ) ) );
+      return vminvq_u32( vreinterpretq_u32_u64( vcleq_f64( xmm1, xmm2 ) ) ) == 0xFFFFFFFFU;
+   }
+   else {
+      return vminvq_u32( vreinterpretq_u32_u64( vceqq_f64( a.value, b.value ) ) ) == 0xFFFFFFFFU;
+   }
+}
 #else
 = delete;
 #endif
@@ -835,6 +915,19 @@ BLAZE_ALWAYS_INLINE bool equal( const SIMDcdouble& a, const SIMDcdouble& b ) noe
       return _mm_movemask_pd( _mm_cmpeq_pd( a.value, b.value ) ) == 0x3;
    }
 }
+#elif BLAZE_NEON_MODE
+{
+   if( RF == relaxed ) {
+      const float64x2_t accu( vdupq_n_f64( static_cast<double>( accuracy ) ) );
+
+      const float64x2_t xmm1( vabsq_f64( vsubq_f64( a.value, b.value ) ) );
+      const float64x2_t xmm2( vmaxq_f64( accu, vmulq_f64( accu, vabsq_f64( a.value ) ) ) );
+      return vminvq_u32( vreinterpretq_u32_u64( vcleq_f64( xmm1, xmm2 ) ) ) == 0xFFFFFFFFU;
+   }
+   else {
+      return vminvq_u32( vreinterpretq_u32_u64( vceqq_f64( a.value, b.value ) ) ) == 0xFFFFFFFFU;
+   }
+}
 #else
 = delete;
 #endif
@@ -869,6 +962,10 @@ BLAZE_ALWAYS_INLINE bool operator==( const SIMDf64<T1>& a, const SIMDf64<T2>& b 
 {
    return _mm_movemask_pd( _mm_cmpeq_pd( (*a).eval().value, (*b).eval().value ) ) == 0x3;
 }
+#elif BLAZE_NEON_MODE
+{
+   return vminvq_u32( vreinterpretq_u32_u64( vceqq_f64( (*a).eval().value, (*b).eval().value ) ) ) == 0xFFFFFFFFU;
+}
 #else
 = delete;
 #endif
@@ -899,6 +996,10 @@ BLAZE_ALWAYS_INLINE bool operator==( const SIMDcdouble& a, const SIMDcdouble& b 
 #elif BLAZE_SSE2_MODE
 {
    return _mm_movemask_pd( _mm_cmpeq_pd( a.value, b.value ) ) == 0x3;
+}
+#elif BLAZE_NEON_MODE
+{
+   return vminvq_u32( vreinterpretq_u32_u64( vceqq_f64( a.value, b.value ) ) ) == 0xFFFFFFFFU;
 }
 #else
 = delete;

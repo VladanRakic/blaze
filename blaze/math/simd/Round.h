@@ -80,6 +80,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat round( const SIMDf32<T>& a ) noexcept
 {
    return _mm_round_ps( (*a).eval().value, ( _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC ) );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vrndnq_f32( (*a).eval().value );
+}
 #else
 = delete;
 #endif
@@ -116,6 +120,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble round( const SIMDf64<T>& a ) noexcept
 #elif BLAZE_SSE4_MODE
 {
    return _mm_round_pd( (*a).eval().value, ( _MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC ) );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vrndnq_f64( (*a).eval().value );
 }
 #else
 = delete;

@@ -47,6 +47,24 @@
 
 namespace blaze {
 
+#if BLAZE_NEON_MODE
+namespace sub_neon_detail {
+
+template< typename IT >
+struct Sub;
+
+template<> struct Sub<int8x16_t> { static int8x16_t apply( int8x16_t a, int8x16_t b ) { return vsubq_s8( a, b ); } };
+template<> struct Sub<uint8x16_t> { static uint8x16_t apply( uint8x16_t a, uint8x16_t b ) { return vsubq_u8( a, b ); } };
+template<> struct Sub<int16x8_t> { static int16x8_t apply( int16x8_t a, int16x8_t b ) { return vsubq_s16( a, b ); } };
+template<> struct Sub<uint16x8_t> { static uint16x8_t apply( uint16x8_t a, uint16x8_t b ) { return vsubq_u16( a, b ); } };
+template<> struct Sub<int32x4_t> { static int32x4_t apply( int32x4_t a, int32x4_t b ) { return vsubq_s32( a, b ); } };
+template<> struct Sub<uint32x4_t> { static uint32x4_t apply( uint32x4_t a, uint32x4_t b ) { return vsubq_u32( a, b ); } };
+template<> struct Sub<int64x2_t> { static int64x2_t apply( int64x2_t a, int64x2_t b ) { return vsubq_s64( a, b ); } };
+template<> struct Sub<uint64x2_t> { static uint64x2_t apply( uint64x2_t a, uint64x2_t b ) { return vsubq_u64( a, b ); } };
+
+} // namespace sub_neon_detail
+#endif
+
 //=================================================================================================
 //
 //  8-BIT INTEGRAL SIMD TYPES
@@ -77,6 +95,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_sub_epi8( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -110,6 +132,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint8
 {
    return _mm_sub_epi8( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<uint8x16_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -140,6 +166,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_sub_epi8( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -180,6 +210,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_sub_epi16( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -212,6 +246,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint16
 {
    return _mm_sub_epi16( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<uint16x8_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -242,6 +280,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_sub_epi16( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -282,6 +324,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_sub_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -314,6 +360,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint32
 {
    return _mm_sub_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<uint32x4_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -344,6 +394,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_sub_epi32( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -384,6 +438,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_sub_epi64( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -416,6 +474,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint64
 {
    return _mm_sub_epi64( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<uint64x2_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -446,6 +508,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_sub_epi64( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return sub_neon_detail::Sub<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -487,6 +553,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat
 {
    return _mm_sub_ps( (*a).eval().value, (*b).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vsubq_f32( (*a).eval().value, (*b).eval().value );
+}
 #else
 = delete;
 #endif
@@ -516,6 +586,10 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat
 #elif BLAZE_SSE_MODE
 {
    return _mm_sub_ps( a.value, b.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vsubq_f32( a.value, b.value );
 }
 #else
 = delete;
@@ -557,6 +631,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble
 {
    return _mm_sub_pd( (*a).eval().value, (*b).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vsubq_f64( (*a).eval().value, (*b).eval().value );
+}
 #else
 = delete;
 #endif
@@ -586,6 +664,10 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble
 #elif BLAZE_SSE2_MODE
 {
    return _mm_sub_pd( a.value, b.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vsubq_f64( a.value, b.value );
 }
 #else
 = delete;

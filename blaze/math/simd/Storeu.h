@@ -41,6 +41,7 @@
 //*************************************************************************************************
 
 #include <blaze/math/simd/BasicTypes.h>
+#include <blaze/math/simd/NeonIntegral.h>
 #include <blaze/system/Inline.h>
 #include <blaze/system/Vectorization.h>
 #include <blaze/util/Complex.h>
@@ -80,6 +81,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,1UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -111,6 +114,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,1UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -148,6 +153,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,2UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -179,6 +186,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,2UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -219,6 +228,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,4UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -253,6 +264,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,4UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -293,6 +306,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,8UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -327,6 +342,8 @@ BLAZE_ALWAYS_INLINE EnableIf_t< IsIntegral_v<T1> && HasSize_v<T1,8UL> >
    _mm256_storeu_si256( reinterpret_cast<__m256i*>( address ), (*value).value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_si128( reinterpret_cast<__m128i*>( address ), (*value).value );
+#elif BLAZE_NEON_MODE
+   neon_integral::Store<typename T2::IntrinsicType>::apply( address, (*value).value );
 #else
    *address = (*value).value;
 #endif
@@ -366,6 +383,8 @@ BLAZE_ALWAYS_INLINE void storeu( float* address, const SIMDf32<T>& value ) noexc
    _mm256_storeu_ps( address, (*value).eval().value );
 #elif BLAZE_SSE_MODE
    _mm_storeu_ps( address, (*value).eval().value );
+#elif BLAZE_NEON_MODE
+   vst1q_f32( address, (*value).eval().value );
 #else
    *address = (*value).eval().value;
 #endif
@@ -397,6 +416,8 @@ BLAZE_ALWAYS_INLINE void storeu( complex<float>* address, const SIMDcfloat& valu
    _mm256_storeu_ps( reinterpret_cast<float*>( address ), value.value );
 #elif BLAZE_SSE_MODE
    _mm_storeu_ps( reinterpret_cast<float*>( address ), value.value );
+#elif BLAZE_NEON_MODE
+   vst1q_f32( reinterpret_cast<float*>( address ), value.value );
 #else
    *address = value.value;
 #endif
@@ -436,6 +457,8 @@ BLAZE_ALWAYS_INLINE void storeu( double* address, const SIMDf64<T>& value ) noex
    _mm256_storeu_pd( address, (*value).eval().value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_pd( address, (*value).eval().value );
+#elif BLAZE_NEON_MODE
+   vst1q_f64( address, (*value).eval().value );
 #else
    *address = (*value).eval().value;
 #endif
@@ -467,6 +490,8 @@ BLAZE_ALWAYS_INLINE void storeu( complex<double>* address, const SIMDcdouble& va
    _mm256_storeu_pd( reinterpret_cast<double*>( address ), value.value );
 #elif BLAZE_SSE2_MODE
    _mm_storeu_pd( reinterpret_cast<double*>( address ), value.value );
+#elif BLAZE_NEON_MODE
+   vst1q_f64( reinterpret_cast<double*>( address ), value.value );
 #else
    *address = value.value;
 #endif

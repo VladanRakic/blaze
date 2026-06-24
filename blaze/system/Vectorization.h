@@ -301,6 +301,23 @@
 //*************************************************************************************************
 
 
+//*************************************************************************************************
+/*!\brief Compilation switch for the NEON mode.
+// \ingroup system
+//
+// This compilation switch enables/disables the NEON mode. In case the NEON mode is enabled
+// (i.e. in case NEON functionality is available on AArch64) the Blaze library attempts to
+// vectorize the linear algebra operations by NEON intrinsics. In case the NEON mode is disabled,
+// the Blaze library chooses default, non-vectorized functionality for the operations.
+*/
+#if BLAZE_USE_VECTORIZATION && defined(__ARM_NEON) && defined(__aarch64__)
+#  define BLAZE_NEON_MODE 1
+#else
+#  define BLAZE_NEON_MODE 0
+#endif
+//*************************************************************************************************
+
+
 
 
 //=================================================================================================
@@ -318,7 +335,7 @@
 // the linear algebra operations by FMA intrinsics. In case the FMA mode is disabled,
 // the Blaze library chooses default, non-vectorized functionality for the operations.
 */
-#if BLAZE_USE_VECTORIZATION && defined(__FMA__)
+#if BLAZE_USE_VECTORIZATION && ( defined(__FMA__) || ( defined(__ARM_NEON) && defined(__aarch64__) ) )
 #  define BLAZE_FMA_MODE 1
 #else
 #  define BLAZE_FMA_MODE 0
@@ -430,6 +447,8 @@ BLAZE_STATIC_ASSERT( !BLAZE_AVX512DQ_MODE || BLAZE_AVX512F_MODE );
 #  include <emmintrin.h>
 #elif BLAZE_SSE_MODE
 #  include <xmmintrin.h>
+#elif BLAZE_NEON_MODE
+#  include <arm_neon.h>
 #endif
 
 #if BLAZE_XSIMD_MODE

@@ -48,6 +48,24 @@
 
 namespace blaze {
 
+#if BLAZE_NEON_MODE
+namespace sum_neon_detail {
+
+template< typename IT >
+struct Sum;
+
+template<> struct Sum<int8x16_t> { static int8_t apply( int8x16_t v ) { return vaddvq_s8( v ); } };
+template<> struct Sum<uint8x16_t> { static uint8_t apply( uint8x16_t v ) { return vaddvq_u8( v ); } };
+template<> struct Sum<int16x8_t> { static int16_t apply( int16x8_t v ) { return vaddvq_s16( v ); } };
+template<> struct Sum<uint16x8_t> { static uint16_t apply( uint16x8_t v ) { return vaddvq_u16( v ); } };
+template<> struct Sum<int32x4_t> { static int32_t apply( int32x4_t v ) { return vaddvq_s32( v ); } };
+template<> struct Sum<uint32x4_t> { static uint32_t apply( uint32x4_t v ) { return vaddvq_u32( v ); } };
+template<> struct Sum<int64x2_t> { static int64_t apply( int64x2_t v ) { return vaddvq_s64( v ); } };
+template<> struct Sum<uint64x2_t> { static uint64_t apply( uint64x2_t v ) { return vaddvq_u64( v ); } };
+
+} // namespace sum_neon_detail
+#endif
+
 //=================================================================================================
 //
 //  8-BIT INTEGRAL SIMD TYPES
@@ -81,6 +99,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> sum( const SIMDi8<T>& a ) noexcept
 #elif BLAZE_SSE2_MODE
    return (*a)[ 0] + (*a)[ 1] + (*a)[ 2] + (*a)[ 3] + (*a)[ 4] + (*a)[ 5] + (*a)[ 6] + (*a)[ 7] +
           (*a)[ 8] + (*a)[ 9] + (*a)[10] + (*a)[11] + (*a)[12] + (*a)[13] + (*a)[14] + (*a)[15];
+#elif BLAZE_NEON_MODE
+   return sum_neon_detail::Sum<typename T::IntrinsicType>::apply( (*a).value );
 #else
    return (*a).value;
 #endif
@@ -107,6 +127,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> sum( const SIMDci8<T>& a ) noexcept
    return (*a)[0] + (*a)[1] + (*a)[ 2] + (*a)[ 3] + (*a)[ 4] + (*a)[ 5] + (*a)[ 6] + (*a)[ 7] +
           (*a)[8] + (*a)[9] + (*a)[10] + (*a)[11] + (*a)[12] + (*a)[13] + (*a)[14] + (*a)[15];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3] + (*a)[4] + (*a)[5] + (*a)[6] + (*a)[7];
+#elif BLAZE_NEON_MODE
    return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3] + (*a)[4] + (*a)[5] + (*a)[6] + (*a)[7];
 #else
    return (*a).value;
@@ -157,6 +179,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> sum( const SIMDi16<T>& a ) noexcept
    return _mm_extract_epi16( d, 0 );
 #elif BLAZE_SSE2_MODE
    return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3] + (*a)[4] + (*a)[5] + (*a)[6] + (*a)[7];
+#elif BLAZE_NEON_MODE
+   return sum_neon_detail::Sum<typename T::IntrinsicType>::apply( (*a).value );
 #else
    return (*a).value;
 #endif
@@ -180,6 +204,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> sum( const SIMDci16<T>& a ) noexcept
 #elif BLAZE_AVX2_MODE
    return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3] + (*a)[4] + (*a)[5] + (*a)[6] + (*a)[7];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3];
+#elif BLAZE_NEON_MODE
    return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3];
 #else
    return (*a).value;
@@ -229,6 +255,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> sum( const SIMDi32<T>& a ) noexcept
 #elif BLAZE_SSE2_MODE
    const __m128i b( _mm_add_epi32( (*a).value, _mm_shuffle_epi32( (*a).value, 0x4E ) ) );
    return _mm_cvtsi128_si32( _mm_add_epi32( b, _mm_shuffle_epi32( b, 0xB1 ) ) );
+#elif BLAZE_NEON_MODE
+   return sum_neon_detail::Sum<typename T::IntrinsicType>::apply( (*a).value );
 #else
    return (*a).value;
 #endif
@@ -251,6 +279,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> sum( const SIMDci32<T>& a ) noexcept
 #elif BLAZE_AVX2_MODE
    return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0] + (*a)[1];
+#elif BLAZE_NEON_MODE
    return (*a)[0] + (*a)[1];
 #else
    return (*a).value;
@@ -283,6 +313,8 @@ BLAZE_ALWAYS_INLINE ValueType_t<T> sum( const SIMDi64<T>& a ) noexcept
    return (*a)[0] + (*a)[1] + (*a)[2] + (*a)[3];
 #elif BLAZE_SSE2_MODE
    return (*a)[0] + (*a)[1];
+#elif BLAZE_NEON_MODE
+   return sum_neon_detail::Sum<typename T::IntrinsicType>::apply( (*a).value );
 #else
    return (*a).value;
 #endif
@@ -305,6 +337,8 @@ BLAZE_ALWAYS_INLINE const ValueType_t<T> sum( const SIMDci64<T>& a ) noexcept
 #elif BLAZE_AVX2_MODE
    return (*a)[0] + (*a)[1];
 #elif BLAZE_SSE2_MODE
+   return (*a)[0];
+#elif BLAZE_NEON_MODE
    return (*a)[0];
 #else
    return (*a).value;
@@ -342,6 +376,8 @@ BLAZE_ALWAYS_INLINE float sum( const SIMDfloat& a ) noexcept
 #elif BLAZE_SSE_MODE
    const __m128 b( _mm_add_ps( a.value, _mm_movehl_ps( a.value, a.value ) ) );
    return _mm_cvtss_f32( _mm_add_ss( b, _mm_shuffle_ps( b, b, 1 ) ) );
+#elif BLAZE_NEON_MODE
+   return vaddvq_f32( a.value );
 #else
    return a.value;
 #endif
@@ -363,6 +399,8 @@ BLAZE_ALWAYS_INLINE const complex<float> sum( const SIMDcfloat& a ) noexcept
 #elif BLAZE_AVX_MODE
    return a[0] + a[1] + a[2] + a[3];
 #elif BLAZE_SSE_MODE
+   return a[0] + a[1];
+#elif BLAZE_NEON_MODE
    return a[0] + a[1];
 #else
    return a.value;
@@ -395,6 +433,8 @@ BLAZE_ALWAYS_INLINE double sum( const SIMDdouble& a ) noexcept
    return _mm_cvtsd_f64( _mm_add_sd( b, _mm_unpackhi_pd( b, b ) ) );
 #elif BLAZE_SSE2_MODE
    return _mm_cvtsd_f64( _mm_add_sd( a.value, _mm_unpackhi_pd( a.value, a.value ) ) );
+#elif BLAZE_NEON_MODE
+   return vaddvq_f64( a.value );
 #else
    return a.value;
 #endif
@@ -416,6 +456,8 @@ BLAZE_ALWAYS_INLINE const complex<double> sum( const SIMDcdouble& a ) noexcept
 #elif BLAZE_AVX_MODE
    return a[0] + a[1];
 #elif BLAZE_SSE2_MODE
+   return a[0];
+#elif BLAZE_NEON_MODE
    return a[0];
 #else
    return a.value;

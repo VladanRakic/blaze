@@ -527,6 +527,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat
 {
    return _mm_div_ps( (*a).eval().value, (*b).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vdivq_f32( (*a).eval().value, (*b).eval().value );
+}
 #else
 = delete;
 #endif
@@ -556,6 +560,10 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat
 #elif BLAZE_SSE_MODE
 {
    return _mm_div_ps( a.value, b.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vdivq_f32( a.value, b.value );
 }
 #else
 = delete;
@@ -597,6 +605,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble
 {
    return _mm_div_pd( (*a).eval().value, (*b).eval().value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vdivq_f64( (*a).eval().value, (*b).eval().value );
+}
 #else
 = delete;
 #endif
@@ -626,6 +638,10 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble
 #elif BLAZE_SSE2_MODE
 {
    return _mm_div_pd( a.value, b.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vdivq_f64( a.value, b.value );
 }
 #else
 = delete;

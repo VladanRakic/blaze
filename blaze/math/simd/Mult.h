@@ -47,6 +47,57 @@
 
 namespace blaze {
 
+#if BLAZE_NEON_MODE
+namespace mult_neon_detail {
+
+template< typename IT >
+struct Mult;
+
+template<> struct Mult<int16x8_t>  { static int16x8_t  apply( int16x8_t  a, int16x8_t  b ) { return vmulq_s16( a, b ); } };
+template<> struct Mult<uint16x8_t> { static uint16x8_t apply( uint16x8_t a, uint16x8_t b ) { return vmulq_u16( a, b ); } };
+template<> struct Mult<int32x4_t>  { static int32x4_t  apply( int32x4_t  a, int32x4_t  b ) { return vmulq_s32( a, b ); } };
+template<> struct Mult<uint32x4_t> { static uint32x4_t apply( uint32x4_t a, uint32x4_t b ) { return vmulq_u32( a, b ); } };
+
+// Full complex multiplication, computed in the signed domain (two's-complement
+// arithmetic is identical for signed and unsigned lanes) and reinterpreted back to
+// the operand lane type so both the signed and unsigned instantiations are supported.
+BLAZE_ALWAYS_INLINE int16x8_t cmul16( int16x8_t a, int16x8_t b )
+{
+   const int16x8_t a_rr = vtrn1q_s16( a, a );
+   const int16x8_t a_ii = vtrn2q_s16( a, a );
+   const int16x8_t b_ri = vrev32q_s16( b );
+   const int16x8_t z = vmulq_s16( a_rr, b );
+   const int16x8_t y = vmulq_s16( a_ii, b_ri );
+   const int16_t addsub_data[8] = { -1, 1, -1, 1, -1, 1, -1, 1 };
+   return vaddq_s16( z, vmulq_s16( y, vld1q_s16( addsub_data ) ) );
+}
+
+BLAZE_ALWAYS_INLINE int16x8_t  cmul16_like( int16x8_t  a, int16x8_t  b ) { return cmul16( a, b ); }
+BLAZE_ALWAYS_INLINE uint16x8_t cmul16_like( uint16x8_t a, uint16x8_t b )
+{
+   return vreinterpretq_u16_s16( cmul16( vreinterpretq_s16_u16( a ), vreinterpretq_s16_u16( b ) ) );
+}
+
+BLAZE_ALWAYS_INLINE int32x4_t cmul32( int32x4_t a, int32x4_t b )
+{
+   const int32x4_t a_rr = vtrn1q_s32( a, a );
+   const int32x4_t a_ii = vtrn2q_s32( a, a );
+   const int32x4_t b_ri = vrev64q_s32( b );
+   const int32x4_t z = vmulq_s32( a_rr, b );
+   const int32x4_t y = vmulq_s32( a_ii, b_ri );
+   const int32_t addsub_data[4] = { -1, 1, -1, 1 };
+   return vaddq_s32( z, vmulq_s32( y, vld1q_s32( addsub_data ) ) );
+}
+
+BLAZE_ALWAYS_INLINE int32x4_t  cmul32_like( int32x4_t  a, int32x4_t  b ) { return cmul32( a, b ); }
+BLAZE_ALWAYS_INLINE uint32x4_t cmul32_like( uint32x4_t a, uint32x4_t b )
+{
+   return vreinterpretq_u32_s32( cmul32( vreinterpretq_s32_u32( a ), vreinterpretq_s32_u32( b ) ) );
+}
+
+} // namespace mult_neon_detail
+#endif
+
 //=================================================================================================
 //
 //  16-BIT INTEGRAL SIMD TYPES
@@ -77,6 +128,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_mullo_epi16( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -110,6 +165,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint16
 {
    return _mm_mullo_epi16( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<uint16x8_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -139,6 +198,10 @@ BLAZE_ALWAYS_INLINE const SIMDcint16
 #elif BLAZE_SSE2_MODE
 {
    return _mm_mullo_epi16( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<int16x8_t>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -170,6 +233,10 @@ BLAZE_ALWAYS_INLINE const SIMDcuint16
 {
    return _mm_mullo_epi16( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<uint16x8_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -200,6 +267,10 @@ BLAZE_ALWAYS_INLINE const SIMDcint16
 {
    return _mm_mullo_epi16( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<int16x8_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -229,6 +300,10 @@ BLAZE_ALWAYS_INLINE const SIMDcuint16
 #elif BLAZE_SSE2_MODE
 {
    return _mm_mullo_epi16( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<uint16x8_t>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -298,6 +373,10 @@ BLAZE_ALWAYS_INLINE const T
    y = _mm_mullo_epi16( y, neg );
    return _mm_add_epi16( z, y );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::cmul16_like( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -337,6 +416,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_mullo_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -369,6 +452,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint32
 {
    return _mm_mullo_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<uint32x4_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -399,6 +486,10 @@ BLAZE_ALWAYS_INLINE const SIMDcint32
 {
    return _mm_mullo_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<int32x4_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -428,6 +519,10 @@ BLAZE_ALWAYS_INLINE const SIMDcuint32
 #elif BLAZE_SSE4_MODE
 {
    return _mm_mullo_epi32( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<uint32x4_t>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -461,6 +556,10 @@ BLAZE_ALWAYS_INLINE const SIMDcint32
 {
    return _mm_mullo_epi32( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<int32x4_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -492,6 +591,10 @@ BLAZE_ALWAYS_INLINE const SIMDcuint32
 #elif BLAZE_SSE4_MODE
 {
    return _mm_mullo_epi32( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::Mult<uint32x4_t>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -549,6 +652,10 @@ BLAZE_ALWAYS_INLINE const T
    y = _mm_mullo_epi32( x, y );
    y = _mm_mullo_epi32( y, neg );
    return _mm_add_epi32( z, y );
+}
+#elif BLAZE_NEON_MODE
+{
+   return mult_neon_detail::cmul32_like( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -789,6 +896,10 @@ struct SIMDf32MultExpr
    {
       return _mm_mul_ps( a_.eval().value, b_.eval().value );
    }
+#elif BLAZE_NEON_MODE
+   {
+      return vmulq_f32( a_.eval().value, b_.eval().value );
+   }
 #else
    = delete;
 #endif
@@ -846,6 +957,10 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat
 {
    return _mm_mul_ps( a.value, b.value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vmulq_f32( a.value, b.value );
+}
 #else
 = delete;
 #endif
@@ -875,6 +990,10 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat
 #elif BLAZE_SSE_MODE
 {
    return _mm_mul_ps( a.value, b.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vmulq_f32( a.value, b.value );
 }
 #else
 = delete;
@@ -922,6 +1041,20 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat
    y = _mm_shuffle_ps( b.value, b.value, 0xB1 );
    y = _mm_mul_ps( x, y );
    return _mm_addsub_ps( z, y );
+}
+#elif BLAZE_NEON_MODE
+{
+   const float32x2_t a_low  = vget_low_f32( a.value );
+   const float32x2_t a_high = vget_high_f32( a.value );
+   const float32x4_t a_rr = vcombine_f32( vdup_lane_f32( a_low, 0 ), vdup_lane_f32( a_high, 0 ) );
+   const float32x4_t a_ii = vcombine_f32( vdup_lane_f32( a_low, 1 ), vdup_lane_f32( a_high, 1 ) );
+   const float32x4_t b_ri = vcombine_f32( vrev64_f32( vget_low_f32( b.value ) )
+                                        , vrev64_f32( vget_high_f32( b.value ) ) );
+   const float32x4_t z = vmulq_f32( a_rr, b.value );
+   const float32x4_t y = vmulq_f32( a_ii, b_ri );
+   const float addsub_data[4] = { -1.0F, 1.0F, -1.0F, 1.0F };
+   const float32x4_t addsub_sign = vld1q_f32( addsub_data );
+   return vaddq_f32( z, vmulq_f32( y, addsub_sign ) );
 }
 #else
 = delete;
@@ -984,6 +1117,10 @@ struct SIMDf64MultExpr
    {
       return _mm_mul_pd( a_.eval().value, b_.eval().value );
    }
+#elif BLAZE_NEON_MODE
+   {
+      return vmulq_f64( a_.eval().value, b_.eval().value );
+   }
 #else
    = delete;
 #endif
@@ -1041,6 +1178,10 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble
 {
    return _mm_mul_pd( a.value, b.value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vmulq_f64( a.value, b.value );
+}
 #else
 = delete;
 #endif
@@ -1070,6 +1211,10 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble
 #elif BLAZE_SSE2_MODE
 {
    return _mm_mul_pd( a.value, b.value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vmulq_f64( a.value, b.value );
 }
 #else
 = delete;
@@ -1117,6 +1262,17 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble
    y = _mm_shuffle_pd( b.value, b.value, 1 );
    y = _mm_mul_pd( x, y );
    return _mm_addsub_pd( z, y );
+}
+#elif BLAZE_NEON_MODE
+{
+   const float64x2_t a_rr = vdupq_laneq_f64( a.value, 0 );
+   const float64x2_t a_ii = vdupq_laneq_f64( a.value, 1 );
+   const float64x2_t b_ri = vextq_f64( b.value, b.value, 1 );
+   const float64x2_t z = vmulq_f64( a_rr, b.value );
+   const float64x2_t y = vmulq_f64( a_ii, b_ri );
+   const double addsub_data[2] = { -1.0, 1.0 };
+   const float64x2_t addsub_sign = vld1q_f64( addsub_data );
+   return vaddq_f64( z, vmulq_f64( y, addsub_sign ) );
 }
 #else
 = delete;

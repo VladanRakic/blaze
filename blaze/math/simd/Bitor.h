@@ -47,6 +47,24 @@
 
 namespace blaze {
 
+#if BLAZE_NEON_MODE
+namespace bitor_neon_detail {
+
+template< typename IT >
+struct Bitor;
+
+template<> struct Bitor<int8x16_t> { static int8x16_t apply( int8x16_t a, int8x16_t b ) { return vorrq_s8( a, b ); } };
+template<> struct Bitor<uint8x16_t> { static uint8x16_t apply( uint8x16_t a, uint8x16_t b ) { return vorrq_u8( a, b ); } };
+template<> struct Bitor<int16x8_t> { static int16x8_t apply( int16x8_t a, int16x8_t b ) { return vorrq_s16( a, b ); } };
+template<> struct Bitor<uint16x8_t> { static uint16x8_t apply( uint16x8_t a, uint16x8_t b ) { return vorrq_u16( a, b ); } };
+template<> struct Bitor<int32x4_t> { static int32x4_t apply( int32x4_t a, int32x4_t b ) { return vorrq_s32( a, b ); } };
+template<> struct Bitor<uint32x4_t> { static uint32x4_t apply( uint32x4_t a, uint32x4_t b ) { return vorrq_u32( a, b ); } };
+template<> struct Bitor<int64x2_t> { static int64x2_t apply( int64x2_t a, int64x2_t b ) { return vorrq_s64( a, b ); } };
+template<> struct Bitor<uint64x2_t> { static uint64x2_t apply( uint64x2_t a, uint64x2_t b ) { return vorrq_u64( a, b ); } };
+
+} // namespace bitor_neon_detail
+#endif
+
 //=================================================================================================
 //
 //  8-BIT INTEGRAL SIMD TYPES
@@ -77,6 +95,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_or_si128( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -110,6 +132,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint8
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<uint8x16_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -140,6 +166,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_or_si128( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -180,6 +210,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -212,6 +246,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint16
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<uint16x8_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -242,6 +280,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_or_si128( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -282,6 +324,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -314,6 +360,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint32
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<uint32x4_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -344,6 +394,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_or_si128( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;
@@ -384,6 +438,10 @@ BLAZE_ALWAYS_INLINE const T
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -416,6 +474,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint64
 {
    return _mm_or_si128( (*a).value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<uint64x2_t>::apply( (*a).value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -446,6 +508,10 @@ BLAZE_ALWAYS_INLINE const T
 #elif BLAZE_SSE2_MODE
 {
    return _mm_or_si128( (*a).value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return bitor_neon_detail::Bitor<typename T::IntrinsicType>::apply( (*a).value, (*b).value );
 }
 #else
 = delete;

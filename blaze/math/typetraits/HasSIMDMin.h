@@ -108,7 +108,8 @@ struct HasSIMDMinHelper< T, T, EnableIf_t< IsNumeric_v<T> && IsIntegral_v<T> && 
    : public BoolConstant< bool( BLAZE_SSE4_MODE    ) ||
                           bool( BLAZE_AVX2_MODE    ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 /*! \endcond */
 //*************************************************************************************************
@@ -121,7 +122,8 @@ struct HasSIMDMinHelper< float, float >
    : public BoolConstant< bool( BLAZE_SSE_MODE     ) ||
                           bool( BLAZE_AVX_MODE     ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 /*! \endcond */
 //*************************************************************************************************
@@ -134,7 +136,8 @@ struct HasSIMDMinHelper< double, double >
    : public BoolConstant< bool( BLAZE_SSE2_MODE    ) ||
                           bool( BLAZE_AVX_MODE     ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 /*! \endcond */
 //*************************************************************************************************

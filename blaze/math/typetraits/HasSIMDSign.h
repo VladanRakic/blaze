@@ -70,13 +70,15 @@ using HasSIMDSignHelper =
                    ( ( bool( BLAZE_SSSE3_MODE    ) && sizeof(T) <= 4UL ) ||
                      ( bool( BLAZE_AVX2_MODE     ) && sizeof(T) <= 4UL ) ||
                      ( bool( BLAZE_AVX512BW_MODE ) && sizeof(T) <= 2UL ) ||
-                     ( bool( BLAZE_AVX512F_MODE  ) && sizeof(T) >= 4UL ) ) ) ||
+                     ( bool( BLAZE_AVX512F_MODE  ) && sizeof(T) >= 4UL ) ||
+                     ( bool( BLAZE_NEON_MODE ) ) ) ) ||
                  ( ( IsFloat_v<T> || IsDouble_v<T> ) &&
                    !( bool( BLAZE_GNU_COMPILER ) && ( bool( BLAZE_MIC_MODE ) || bool( BLAZE_AVX512F_MODE ) ) ) &&
                    ( bool( BLAZE_SSE4_MODE    ) ||
                      bool( BLAZE_AVX_MODE     ) ||
                      bool( BLAZE_MIC_MODE     ) ||
-                     bool( BLAZE_AVX512F_MODE ) ) ) >;
+                     bool( BLAZE_AVX512F_MODE ) ||
+                     bool( BLAZE_NEON_MODE ) ) ) >;
 /*! \endcond */
 //*************************************************************************************************
 

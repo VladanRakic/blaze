@@ -95,6 +95,10 @@ BLAZE_ALWAYS_INLINE const SIMDfloat erfc( const SIMDf32<T>& a ) noexcept
 {
    return Sleef_erfcf4_u15( (*a).eval().value );
 }
+#  elif BLAZE_NEON_MODE
+{
+   return Sleef_erfcf4_u15advsimd( (*a).eval().value );
+}
 #  endif
 #elif BLAZE_XSIMD_MODE
 {
@@ -152,6 +156,10 @@ BLAZE_ALWAYS_INLINE const SIMDdouble erfc( const SIMDf64<T>& a ) noexcept
 #  elif BLAZE_SSE_MODE
 {
    return Sleef_erfcd2_u15( (*a).eval().value );
+}
+#  elif BLAZE_NEON_MODE
+{
+   return Sleef_erfcd2_u15advsimd( (*a).eval().value );
 }
 #  endif
 #elif BLAZE_XSIMD_MODE

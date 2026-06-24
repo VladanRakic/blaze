@@ -104,7 +104,8 @@ struct HasSIMDSubHelper< float, float >
    : public BoolConstant< bool( BLAZE_SSE_MODE     ) ||
                           bool( BLAZE_AVX_MODE     ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 
 template<>
@@ -112,7 +113,8 @@ struct HasSIMDSubHelper< complex<float>, complex<float> >
    : public BoolConstant< bool( BLAZE_SSE_MODE     ) ||
                           bool( BLAZE_AVX_MODE     ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 /*! \endcond */
 //*************************************************************************************************
@@ -125,7 +127,8 @@ struct HasSIMDSubHelper< double, double >
    : public BoolConstant< bool( BLAZE_SSE2_MODE    ) ||
                           bool( BLAZE_AVX_MODE     ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 
 template<>
@@ -133,7 +136,8 @@ struct HasSIMDSubHelper< complex<double>, complex<double> >
    : public BoolConstant< bool( BLAZE_SSE2_MODE    ) ||
                           bool( BLAZE_AVX_MODE     ) ||
                           bool( BLAZE_MIC_MODE     ) ||
-                          bool( BLAZE_AVX512F_MODE ) >
+                          bool( BLAZE_AVX512F_MODE ) ||
+                          bool( BLAZE_NEON_MODE ) >
 {};
 /*! \endcond */
 //*************************************************************************************************

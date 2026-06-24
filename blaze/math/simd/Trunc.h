@@ -95,10 +95,18 @@ BLAZE_ALWAYS_INLINE const SIMDfloat trunc( const SIMDf32<T>& a ) noexcept
 {
    return Sleef_truncf4( (*a).eval().value );
 }
+#  elif BLAZE_NEON_MODE
+{
+   return Sleef_truncf4_advsimd( (*a).eval().value );
+}
 #  endif
 #elif BLAZE_XSIMD_MODE
 {
   return SIMDfloat{ xsimd::trunc( xsimd::batch<float>{ (*a).eval().value } ).data };
+}
+#elif BLAZE_NEON_MODE
+{
+   return vrndq_f32( (*a).eval().value );
 }
 #else
 = delete;
@@ -153,10 +161,18 @@ BLAZE_ALWAYS_INLINE const SIMDdouble trunc( const SIMDf64<T>& a ) noexcept
 {
    return Sleef_truncd2( (*a).eval().value );
 }
+#  elif BLAZE_NEON_MODE
+{
+   return Sleef_truncd2_advsimd( (*a).eval().value );
+}
 #  endif
 #elif BLAZE_XSIMD_MODE
 {
   return SIMDdouble{ xsimd::trunc( xsimd::batch<double>{ (*a).eval().value } ).data };
+}
+#elif BLAZE_NEON_MODE
+{
+   return vrndq_f64( (*a).eval().value );
 }
 #else
 = delete;

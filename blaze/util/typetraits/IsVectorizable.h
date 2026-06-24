@@ -42,6 +42,7 @@
 
 #include <blaze/system/Vectorization.h>
 #include <blaze/util/Complex.h>
+#include <blaze/util/typetraits/IsDouble.h>
 #include <blaze/util/typetraits/IsFloat.h>
 #include <blaze/util/typetraits/IsNumeric.h>
 #include <blaze/util/typetraits/RemoveCV.h>
@@ -70,7 +71,8 @@ struct IsVectorizableHelper
                                    ( bool( BLAZE_SSE2_MODE     ) && IsNumeric_v<T> ) ||
                                    ( bool( BLAZE_AVX512BW_MODE ) && IsNumeric_v<T> ) ||
                                    ( bool( BLAZE_AVX512F_MODE || BLAZE_MIC_MODE )
-                                     && IsNumeric_v<T> && sizeof(T) >= 4UL ) );
+                                     && IsNumeric_v<T> && sizeof(T) >= 4UL ) ||
+                                   ( bool( BLAZE_NEON_MODE     ) && IsNumeric_v<T> ) );
    //**********************************************************************************************
 };
 /*! \endcond */

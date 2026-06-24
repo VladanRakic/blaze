@@ -41,6 +41,7 @@
 //*************************************************************************************************
 
 #include <blaze/math/simd/BasicTypes.h>
+#include <blaze/math/simd/NeonDup.h>
 #include <blaze/system/Inline.h>
 #include <blaze/system/Vectorization.h>
 
@@ -69,6 +70,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDi8<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -92,6 +95,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDci8<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -123,6 +128,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDi16<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -146,6 +153,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDci16<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -177,6 +186,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDi32<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -200,6 +211,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDci32<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -231,6 +244,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDi64<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -254,6 +269,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDci64<T>& value ) noexcept
    (*value).value = _mm256_setzero_si256();
 #elif BLAZE_SSE2_MODE
    (*value).value = _mm_setzero_si128();
+#elif BLAZE_NEON_MODE
+   (*value).value = neon_dup_detail::Zero<typename T::IntrinsicType>::apply();
 #else
    (*value).value = 0;
 #endif
@@ -284,6 +301,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDfloat& value ) noexcept
    value.value = _mm256_setzero_ps();
 #elif BLAZE_SSE_MODE
    value.value = _mm_setzero_ps();
+#elif BLAZE_NEON_MODE
+   value.value = vdupq_n_f32( 0.0F );
 #else
    value.value = 0.0F;
 #endif
@@ -306,6 +325,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDcfloat& value ) noexcept
    value.value = _mm256_setzero_ps();
 #elif BLAZE_SSE_MODE
    value.value = _mm_setzero_ps();
+#elif BLAZE_NEON_MODE
+   value.value = vdupq_n_f32( 0.0F );
 #else
    value.value = 0.0F;
 #endif
@@ -336,6 +357,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDdouble& value ) noexcept
    value.value = _mm256_setzero_pd();
 #elif BLAZE_SSE2_MODE
    value.value = _mm_setzero_pd();
+#elif BLAZE_NEON_MODE
+   value.value = vdupq_n_f64( 0.0 );
 #else
    value.value = 0.0;
 #endif
@@ -358,6 +381,8 @@ BLAZE_ALWAYS_INLINE void setzero( SIMDcdouble& value ) noexcept
    value.value = _mm256_setzero_pd();
 #elif BLAZE_SSE2_MODE
    value.value = _mm_setzero_pd();
+#elif BLAZE_NEON_MODE
+   value.value = vdupq_n_f64( 0.0 );
 #else
    value.value = 0.0;
 #endif

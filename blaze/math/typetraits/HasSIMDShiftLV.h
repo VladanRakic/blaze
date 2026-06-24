@@ -69,7 +69,8 @@ using HasSIMDShiftLVHelper =
                  ( ( bool( BLAZE_AVX2_MODE     ) && sizeof(T1) >= 4UL ) ||
                    ( bool( BLAZE_MIC_MODE      ) && sizeof(T1) == 4UL ) ||
                    ( bool( BLAZE_AVX512BW_MODE ) && sizeof(T1) == 2UL ) ||
-                   ( bool( BLAZE_AVX512F_MODE  ) && sizeof(T1) >= 4UL ) ) >;
+                   ( bool( BLAZE_AVX512F_MODE  ) && sizeof(T1) >= 4UL ) ||
+                            ( bool( BLAZE_NEON_MODE ) ) ) >;
 /*! \endcond */
 //*************************************************************************************************
 

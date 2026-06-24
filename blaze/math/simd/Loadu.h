@@ -41,10 +41,12 @@
 //*************************************************************************************************
 
 #include <blaze/math/simd/BasicTypes.h>
+#include <blaze/math/simd/NeonLoad.h>
 #include <blaze/system/Inline.h>
 #include <blaze/system/Vectorization.h>
 #include <blaze/util/Complex.h>
 #include <blaze/util/EnableIf.h>
+#include <blaze/util/IntegralConstant.h>
 #include <blaze/util/mpl/If.h>
 #include <blaze/util/StaticAssert.h>
 #include <blaze/util/typetraits/HasSize.h>
@@ -81,6 +83,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,1UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::load8( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return *address;
 #endif
@@ -111,6 +115,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,1UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::loadc8( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return If_t< IsSigned_v<T>, SIMDcint8, SIMDcuint8 >( *address );
 #endif
@@ -147,6 +153,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,2UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::load16( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return *address;
 #endif
@@ -177,6 +185,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,2UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::loadc16( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return If_t< IsSigned_v<T>, SIMDcint16, SIMDcuint16 >( *address );
 #endif
@@ -218,6 +228,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,4UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::load32( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return If_t< IsSigned_v<T>, SIMDint32, SIMDuint32 >( *address );
 #endif
@@ -253,6 +265,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,4UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::loadc32( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return *address;
 #endif
@@ -294,6 +308,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,8UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::load64( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return *address;
 #endif
@@ -329,6 +345,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,8UL>
    return _mm256_loadu_si256( reinterpret_cast<const __m256i*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_si128( reinterpret_cast<const __m128i*>( address ) );
+#elif BLAZE_NEON_MODE
+   return load_neon_detail::loadc64( address, BoolConstant< IsSigned_v<T> >{} );
 #else
    return If_t< IsSigned_v<T>, SIMDcint64, SIMDcuint64 >( *address );
 #endif
@@ -367,6 +385,8 @@ BLAZE_ALWAYS_INLINE const SIMDfloat loadu( const float* address ) noexcept
    return _mm256_loadu_ps( address );
 #elif BLAZE_SSE_MODE
    return _mm_loadu_ps( address );
+#elif BLAZE_NEON_MODE
+   return vld1q_f32( address );
 #else
    return *address;
 #endif
@@ -399,6 +419,8 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat loadu( const complex<float>* address ) noex
    return _mm256_loadu_ps( reinterpret_cast<const float*>( address ) );
 #elif BLAZE_SSE_MODE
    return _mm_loadu_ps( reinterpret_cast<const float*>( address ) );
+#elif BLAZE_NEON_MODE
+   return vld1q_f32( reinterpret_cast<const float*>( address ) );
 #else
    return *address;
 #endif
@@ -437,6 +459,8 @@ BLAZE_ALWAYS_INLINE const SIMDdouble loadu( const double* address ) noexcept
    return _mm256_loadu_pd( address );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_pd( address );
+#elif BLAZE_NEON_MODE
+   return vld1q_f64( address );
 #else
    return *address;
 #endif
@@ -469,6 +493,8 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble loadu( const complex<double>* address ) no
    return _mm256_loadu_pd( reinterpret_cast<const double*>( address ) );
 #elif BLAZE_SSE2_MODE
    return _mm_loadu_pd( reinterpret_cast<const double*>( address ) );
+#elif BLAZE_NEON_MODE
+   return vld1q_f64( reinterpret_cast<const double*>( address ) );
 #else
    return *address;
 #endif

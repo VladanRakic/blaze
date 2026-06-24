@@ -113,6 +113,34 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint8, SIMDuint8 >
 {
    return _mm_set_epi8( v15, v14, v13, v12, v11, v10, v9, v8, v7, v6, v5, v4, v3, v2, v1, v0 );
 }
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDint8 >
+   setall_epi8_impl( T v0, T v1, T v2, T v3, T v4, T v5, T v6, T v7
+                   , T v8, T v9, T v10, T v11, T v12, T v13, T v14, T v15 ) noexcept
+{
+   const int8_t data[16] = { v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 };
+   return vld1q_s8( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDuint8 >
+   setall_epi8_impl( T v0, T v1, T v2, T v3, T v4, T v5, T v6, T v7
+                   , T v8, T v9, T v10, T v11, T v12, T v13, T v14, T v15 ) noexcept
+{
+   const uint8_t data[16] = { v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 };
+   return vld1q_u8( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint8, SIMDuint8 >
+   setall_epi8( T v0  = 0, T v1  = 0, T v2  = 0, T v3  = 0
+              , T v4  = 0, T v5  = 0, T v6  = 0, T v7  = 0
+              , T v8  = 0, T v9  = 0, T v10 = 0, T v11 = 0
+              , T v12 = 0, T v13 = 0, T v14 = 0, T v15 = 0 ) noexcept
+{
+   return setall_epi8_impl( v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 );
+}
 #else
 template< typename T >
 BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint8, SIMDuint8 >
@@ -230,6 +258,48 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint8, SIMDcuint8 >
                       , v3.imag(), v3.real(), v2.imag(), v2.real()
                       , v1.imag(), v1.real(), v0.imag(), v0.real() );
 }
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint8 >
+   setall_epi8_complex_impl( const complex<T>& v0, const complex<T>& v1
+                           , const complex<T>& v2, const complex<T>& v3
+                           , const complex<T>& v4, const complex<T>& v5
+                           , const complex<T>& v6, const complex<T>& v7 ) noexcept
+{
+   const int8_t data[16] = { v0.real(), v0.imag(), v1.real(), v1.imag()
+                           , v2.real(), v2.imag(), v3.real(), v3.imag()
+                           , v4.real(), v4.imag(), v5.real(), v5.imag()
+                           , v6.real(), v6.imag(), v7.real(), v7.imag() };
+   return vld1q_s8( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint8 >
+   setall_epi8_complex_impl( const complex<T>& v0, const complex<T>& v1
+                           , const complex<T>& v2, const complex<T>& v3
+                           , const complex<T>& v4, const complex<T>& v5
+                           , const complex<T>& v6, const complex<T>& v7 ) noexcept
+{
+   const uint8_t data[16] = { static_cast<uint8_t>( v0.real() ), static_cast<uint8_t>( v0.imag() )
+                           , static_cast<uint8_t>( v1.real() ), static_cast<uint8_t>( v1.imag() )
+                           , static_cast<uint8_t>( v2.real() ), static_cast<uint8_t>( v2.imag() )
+                           , static_cast<uint8_t>( v3.real() ), static_cast<uint8_t>( v3.imag() )
+                           , static_cast<uint8_t>( v4.real() ), static_cast<uint8_t>( v4.imag() )
+                           , static_cast<uint8_t>( v5.real() ), static_cast<uint8_t>( v5.imag() )
+                           , static_cast<uint8_t>( v6.real() ), static_cast<uint8_t>( v6.imag() )
+                           , static_cast<uint8_t>( v7.real() ), static_cast<uint8_t>( v7.imag() ) };
+   return vld1q_u8( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint8, SIMDcuint8 >
+   setall_epi8( const complex<T>& v0 = 0, const complex<T>& v1 = 0
+              , const complex<T>& v2 = 0, const complex<T>& v3 = 0
+              , const complex<T>& v4 = 0, const complex<T>& v5 = 0
+              , const complex<T>& v6 = 0, const complex<T>& v7 = 0 ) noexcept
+{
+   return setall_epi8_complex_impl( v0, v1, v2, v3, v4, v5, v6, v7 );
+}
 #else
 template< typename T >
 BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint8, SIMDcuint8 >
@@ -318,6 +388,30 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint16, SIMDuint16 >
                , T v4 = 0, T v5 = 0, T v6 = 0, T v7 = 0 ) noexcept
 {
    return _mm_set_epi16( v7, v6, v5, v4, v3, v2, v1, v0 );
+}
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDint16 >
+   setall_epi16_impl( T v0, T v1, T v2, T v3, T v4, T v5, T v6, T v7 ) noexcept
+{
+   const int16_t data[8] = { v0, v1, v2, v3, v4, v5, v6, v7 };
+   return vld1q_s16( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDuint16 >
+   setall_epi16_impl( T v0, T v1, T v2, T v3, T v4, T v5, T v6, T v7 ) noexcept
+{
+   const uint16_t data[8] = { v0, v1, v2, v3, v4, v5, v6, v7 };
+   return vld1q_u16( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint16, SIMDuint16 >
+   setall_epi16( T v0 = 0, T v1 = 0, T v2 = 0, T v3 = 0
+               , T v4 = 0, T v5 = 0, T v6 = 0, T v7 = 0 ) noexcept
+{
+   return setall_epi16_impl( v0, v1, v2, v3, v4, v5, v6, v7 );
 }
 #else
 template< typename T >
@@ -408,6 +502,36 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint16, SIMDcuint16 >
    return _mm_set_epi16( v3.imag(), v3.real(), v2.imag(), v2.real()
                        , v1.imag(), v1.real(), v0.imag(), v0.real() );
 }
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint16 >
+   setall_epi16_complex_impl( const complex<T>& v0, const complex<T>& v1
+                            , const complex<T>& v2, const complex<T>& v3 ) noexcept
+{
+   const int16_t data[8] = { v0.real(), v0.imag(), v1.real(), v1.imag()
+                           , v2.real(), v2.imag(), v3.real(), v3.imag() };
+   return vld1q_s16( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint16 >
+   setall_epi16_complex_impl( const complex<T>& v0, const complex<T>& v1
+                            , const complex<T>& v2, const complex<T>& v3 ) noexcept
+{
+   const uint16_t data[8] = { static_cast<uint16_t>( v0.real() ), static_cast<uint16_t>( v0.imag() )
+                           , static_cast<uint16_t>( v1.real() ), static_cast<uint16_t>( v1.imag() )
+                           , static_cast<uint16_t>( v2.real() ), static_cast<uint16_t>( v2.imag() )
+                           , static_cast<uint16_t>( v3.real() ), static_cast<uint16_t>( v3.imag() ) };
+   return vld1q_u16( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint16, SIMDcuint16 >
+   setall_epi16( const complex<T>& v0 = 0, const complex<T>& v1 = 0
+               , const complex<T>& v2 = 0, const complex<T>& v3 = 0 ) noexcept
+{
+   return setall_epi16_complex_impl( v0, v1, v2, v3 );
+}
 #else
 template< typename T >
 BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint16, SIMDcuint16 >
@@ -489,6 +613,29 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint32, SIMDuint32 >
 {
    return _mm_set_epi32( v3, v2, v1, v0 );
 }
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDint32 >
+   setall_epi32_impl( T v0, T v1, T v2, T v3 ) noexcept
+{
+   const int32_t data[4] = { v0, v1, v2, v3 };
+   return vld1q_s32( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDuint32 >
+   setall_epi32_impl( T v0, T v1, T v2, T v3 ) noexcept
+{
+   const uint32_t data[4] = { v0, v1, v2, v3 };
+   return vld1q_u32( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint32, SIMDuint32 >
+   setall_epi32( T v0 = 0, T v1 = 0, T v2 = 0, T v3 = 0 ) noexcept
+{
+   return setall_epi32_impl( v0, v1, v2, v3 );
+}
 #else
 template< typename T >
 BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint32, SIMDuint32 >
@@ -563,6 +710,30 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint32, SIMDcuint32 >
    setall_epi32( const complex<T>& v0 = 0, const complex<T>& v1 = 0 ) noexcept
 {
    return _mm_set_epi32( v1.imag(), v1.real(), v0.imag(), v0.real() );
+}
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint32 >
+   setall_epi32_complex_impl( const complex<T>& v0, const complex<T>& v1 ) noexcept
+{
+   const int32_t data[4] = { v0.real(), v0.imag(), v1.real(), v1.imag() };
+   return vld1q_s32( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint32 >
+   setall_epi32_complex_impl( const complex<T>& v0, const complex<T>& v1 ) noexcept
+{
+   const uint32_t data[4] = { static_cast<uint32_t>( v0.real() ), static_cast<uint32_t>( v0.imag() )
+                           , static_cast<uint32_t>( v1.real() ), static_cast<uint32_t>( v1.imag() ) };
+   return vld1q_u32( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint32, SIMDcuint32 >
+   setall_epi32( const complex<T>& v0 = 0, const complex<T>& v1 = 0 ) noexcept
+{
+   return setall_epi32_complex_impl( v0, v1 );
 }
 #else
 template< typename T >
@@ -642,6 +813,29 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint64, SIMDuint64 >
 {
    return _mm_set_epi64x( v1, v0 );
 }
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDint64 >
+   setall_epi64_impl( T v0, T v1 ) noexcept
+{
+   const int64_t data[2] = { v0, v1 };
+   return vld1q_s64( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDuint64 >
+   setall_epi64_impl( T v0, T v1 ) noexcept
+{
+   const uint64_t data[2] = { v0, v1 };
+   return vld1q_u64( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint64, SIMDuint64 >
+   setall_epi64( T v0 = 0, T v1 = 0 ) noexcept
+{
+   return setall_epi64_impl( v0, v1 );
+}
 #else
 template< typename T >
 BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDint64, SIMDuint64 >
@@ -710,6 +904,29 @@ BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint64, SIMDcuint64 >
    setall_epi64( const complex<T>& v0 = 0 ) noexcept
 {
    return _mm_set_epi64x( v0.imag(), v0.real() );
+}
+#elif BLAZE_NEON_MODE
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint64 >
+   setall_epi64_complex_impl( const complex<T>& v0 ) noexcept
+{
+   const int64_t data[2] = { v0.real(), v0.imag() };
+   return vld1q_s64( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint64 >
+   setall_epi64_complex_impl( const complex<T>& v0 ) noexcept
+{
+   const uint64_t data[2] = { static_cast<uint64_t>( v0.real() ), static_cast<uint64_t>( v0.imag() ) };
+   return vld1q_u64( data );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE const If_t< IsSigned_v<T>, SIMDcint64, SIMDcuint64 >
+   setall_epi64( const complex<T>& v0 = 0 ) noexcept
+{
+   return setall_epi64_complex_impl( v0 );
 }
 #else
 template< typename T >
@@ -789,6 +1006,12 @@ BLAZE_ALWAYS_INLINE const SIMDfloat
 {
    return _mm_set_ps( v3, v2, v1, v0 );
 }
+#elif BLAZE_NEON_MODE
+BLAZE_ALWAYS_INLINE const SIMDfloat
+   setall_ps( float v0 = 0.0F, float v1 = 0.0F, float v2 = 0.0F, float v3 = 0.0F ) noexcept
+{
+   return float32x4_t{ v0, v1, v2, v3 };
+}
 #else
 BLAZE_ALWAYS_INLINE const SIMDfloat
    setall_ps( float v1 = 0.0F, float v0 = 0.0F ) noexcept
@@ -856,6 +1079,12 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat
    setall_ps( const complex<float>& v0 = 0.0F, const complex<float>& v1 = 0.0F ) noexcept
 {
    return _mm_set_ps( v1.imag(), v1.real(), v0.imag(), v0.real() );
+}
+#elif BLAZE_NEON_MODE
+BLAZE_ALWAYS_INLINE const SIMDcfloat
+   setall_ps( const complex<float>& v0 = 0.0F, const complex<float>& v1 = 0.0F ) noexcept
+{
+   return float32x4_t{ v0.real(), v0.imag(), v1.real(), v1.imag() };
 }
 #else
 BLAZE_ALWAYS_INLINE const SIMDcfloat
@@ -928,6 +1157,12 @@ BLAZE_ALWAYS_INLINE const SIMDdouble
 {
    return _mm_set_pd( v1, v0 );
 }
+#elif BLAZE_NEON_MODE
+BLAZE_ALWAYS_INLINE const SIMDdouble
+   setall_pd( double v0 = 0.0, double v1 = 0.0 ) noexcept
+{
+   return float64x2_t{ v0, v1 };
+}
 #else
 BLAZE_ALWAYS_INLINE const SIMDdouble
    setall_pd( double v0 = 0.0 ) noexcept
@@ -989,6 +1224,12 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble
    setall_pd( const complex<double>& v0 = 0.0 ) noexcept
 {
    return _mm_set_pd( v0.imag(), v0.real() );
+}
+#elif BLAZE_NEON_MODE
+BLAZE_ALWAYS_INLINE const SIMDcdouble
+   setall_pd( const complex<double>& v0 = 0.0 ) noexcept
+{
+   return float64x2_t{ v0.real(), v0.imag() };
 }
 #else
 BLAZE_ALWAYS_INLINE const SIMDcdouble

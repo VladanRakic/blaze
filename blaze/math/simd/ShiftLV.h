@@ -49,6 +49,68 @@ namespace blaze {
 
 //=================================================================================================
 //
+//  8-BIT INTEGRAL SIMD TYPES
+//
+//=================================================================================================
+
+//*************************************************************************************************
+/*!\brief Elementwise left-shift of a vector of 8-bit signed integral SIMD values.
+// \ingroup simd
+//
+// \param a The left-hand side SIMD vector of 8-bit signed integral values to be shifted.
+// \param b The right-hand side SIMD vector of bits to shift.
+// \return The result of the left-shift.
+//
+// This operation is only available for AVX-512BW and NEON.
+*/
+template< typename T >  // Type of both operands
+BLAZE_ALWAYS_INLINE const SIMDint8
+   operator<<( const SIMDint8& a, const SIMDi8<T>& b ) noexcept
+#if BLAZE_AVX512BW_MODE
+{
+   return _mm512_sllv_epi8( a.value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_s8( a.value, (*b).value );
+}
+#else
+= delete;
+#endif
+//*************************************************************************************************
+
+
+//*************************************************************************************************
+/*!\brief Elementwise left-shift of a vector of 8-bit unsigned integral SIMD values.
+// \ingroup simd
+//
+// \param a The left-hand side SIMD vector of 8-bit unsigned integral values to be shifted.
+// \param b The right-hand side SIMD vector of bits to shift.
+// \return The result of the left-shift.
+//
+// This operation is only available for AVX-512BW and NEON.
+*/
+template< typename T >  // Type of both operands
+BLAZE_ALWAYS_INLINE const SIMDuint8
+   operator<<( const SIMDuint8& a, const SIMDi8<T>& b ) noexcept
+#if BLAZE_AVX512BW_MODE
+{
+   return _mm512_sllv_epi8( a.value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_u8( a.value, vreinterpretq_s8_u8( (*b).value ) );
+}
+#else
+= delete;
+#endif
+//*************************************************************************************************
+
+
+
+
+//=================================================================================================
+//
 //  16-BIT INTEGRAL SIMD TYPES
 //
 //=================================================================================================
@@ -69,6 +131,10 @@ BLAZE_ALWAYS_INLINE const SIMDint16
 #if BLAZE_AVX512BW_MODE
 {
    return _mm512_sllv_epi16( a.value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_s16( a.value, (*b).value );
 }
 #else
 = delete;
@@ -92,6 +158,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint16
 #if BLAZE_AVX512BW_MODE
 {
    return _mm512_sllv_epi16( a.value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_u16( a.value, vreinterpretq_s16_u16( (*b).value ) );
 }
 #else
 = delete;
@@ -128,6 +198,10 @@ BLAZE_ALWAYS_INLINE const SIMDint32
 {
    return _mm256_sllv_epi32( a.value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_s32( a.value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -154,6 +228,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint32
 #elif BLAZE_AVX2_MODE
 {
    return _mm256_sllv_epi32( a.value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_u32( a.value, vreinterpretq_s32_u32( (*b).value ) );
 }
 #else
 = delete;
@@ -190,6 +268,10 @@ BLAZE_ALWAYS_INLINE const SIMDint64
 {
    return _mm256_sllv_epi64( a.value, (*b).value );
 }
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_s64( a.value, (*b).value );
+}
 #else
 = delete;
 #endif
@@ -216,6 +298,10 @@ BLAZE_ALWAYS_INLINE const SIMDuint64
 #elif BLAZE_AVX2_MODE
 {
    return _mm256_sllv_epi64( a.value, (*b).value );
+}
+#elif BLAZE_NEON_MODE
+{
+   return vshlq_u64( a.value, vreinterpretq_s64_u64( (*b).value ) );
 }
 #else
 = delete;

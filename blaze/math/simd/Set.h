@@ -41,11 +41,13 @@
 //*************************************************************************************************
 
 #include <blaze/math/simd/BasicTypes.h>
+#include <blaze/math/simd/NeonDup.h>
 #include <blaze/system/Inline.h>
 #include <blaze/system/Vectorization.h>
 #include <blaze/util/Assert.h>
 #include <blaze/util/constraints/Integral.h>
 #include <blaze/util/EnableIf.h>
+#include <blaze/util/IntegralConstant.h>
 #include <blaze/util/mpl/If.h>
 #include <blaze/util/StaticAssert.h>
 #include <blaze/util/Types.h>
@@ -55,6 +57,91 @@
 
 
 namespace blaze {
+
+#if BLAZE_NEON_MODE
+namespace set_neon_detail {
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint8 >
+   setc8( complex<T> value )
+{
+   const int8_t d[16] = { value.real(), value.imag(), value.real(), value.imag(),
+                          value.real(), value.imag(), value.real(), value.imag(),
+                          value.real(), value.imag(), value.real(), value.imag(),
+                          value.real(), value.imag(), value.real(), value.imag() };
+   return vld1q_s8( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint8 >
+   setc8( complex<T> value )
+{
+   const uint8_t d[16] = { static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ),
+                           static_cast<uint8_t>( value.real() ), static_cast<uint8_t>( value.imag() ) };
+   return vld1q_u8( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint16 >
+   setc16( complex<T> value )
+{
+   const int16_t d[8] = { value.real(), value.imag(), value.real(), value.imag(),
+                          value.real(), value.imag(), value.real(), value.imag() };
+   return vld1q_s16( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint16 >
+   setc16( complex<T> value )
+{
+   const uint16_t d[8] = { static_cast<uint16_t>( value.real() ), static_cast<uint16_t>( value.imag() ),
+                           static_cast<uint16_t>( value.real() ), static_cast<uint16_t>( value.imag() ),
+                           static_cast<uint16_t>( value.real() ), static_cast<uint16_t>( value.imag() ),
+                           static_cast<uint16_t>( value.real() ), static_cast<uint16_t>( value.imag() ) };
+   return vld1q_u16( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint32 >
+   setc32( complex<T> value )
+{
+   const int32_t d[4] = { value.real(), value.imag(), value.real(), value.imag() };
+   return vld1q_s32( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint32 >
+   setc32( complex<T> value )
+{
+   const uint32_t d[4] = { static_cast<uint32_t>( value.real() ), static_cast<uint32_t>( value.imag() ),
+                           static_cast<uint32_t>( value.real() ), static_cast<uint32_t>( value.imag() ) };
+   return vld1q_u32( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< IsSigned_v<T>, SIMDcint64 >
+   setc64( complex<T> value )
+{
+   const int64_t d[2] = { value.real(), value.imag() };
+   return vld1q_s64( d );
+}
+
+template< typename T >
+BLAZE_ALWAYS_INLINE EnableIf_t< !IsSigned_v<T>, SIMDcuint64 >
+   setc64( complex<T> value )
+{
+   const uint64_t d[2] = { static_cast<uint64_t>( value.real() ), static_cast<uint64_t>( value.imag() ) };
+   return vld1q_u64( d );
+}
+
+} // namespace set_neon_detail
+#endif
 
 //=================================================================================================
 //
@@ -80,6 +167,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,1UL>
    return _mm256_set1_epi8( value );
 #elif BLAZE_SSE2_MODE
    return _mm_set1_epi8( value );
+#elif BLAZE_NEON_MODE
+   return neon_dup_detail::dup8( value, BoolConstant< IsSigned_v<T> >{} );
 #else
    return value;
 #endif
@@ -115,6 +204,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,1UL>
                         value.imag(), value.real(), value.imag(), value.real(),
                         value.imag(), value.real(), value.imag(), value.real(),
                         value.imag(), value.real(), value.imag(), value.real() );
+#elif BLAZE_NEON_MODE
+   return set_neon_detail::setc8( value );
 #else
    return value;
 #endif
@@ -149,6 +240,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,2UL>
    return _mm256_set1_epi16( value );
 #elif BLAZE_SSE2_MODE
    return _mm_set1_epi16( value );
+#elif BLAZE_NEON_MODE
+   return neon_dup_detail::dup16( value, BoolConstant< IsSigned_v<T> >{} );
 #else
    return value;
 #endif
@@ -178,6 +271,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,2UL>
 #elif BLAZE_SSE2_MODE
    return _mm_set_epi16( value.imag(), value.real(), value.imag(), value.real(),
                          value.imag(), value.real(), value.imag(), value.real() );
+#elif BLAZE_NEON_MODE
+   return set_neon_detail::setc16( value );
 #else
    return value;
 #endif
@@ -212,6 +307,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,4UL>
    return _mm256_set1_epi32( value );
 #elif BLAZE_SSE2_MODE
    return _mm_set1_epi32( value );
+#elif BLAZE_NEON_MODE
+   return neon_dup_detail::dup32( value, BoolConstant< IsSigned_v<T> >{} );
 #else
    return value;
 #endif
@@ -241,6 +338,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,4UL>
                             value.imag(), value.real(), value.imag(), value.real() );
 #elif BLAZE_SSE2_MODE
    return _mm_set_epi32( value.imag(), value.real(), value.imag(), value.real() );
+#elif BLAZE_NEON_MODE
+   return set_neon_detail::setc32( value );
 #else
    return value;
 #endif
@@ -275,6 +374,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,8UL>
    return _mm256_set1_epi64x( value );
 #elif BLAZE_SSE2_MODE
    return _mm_set1_epi64x( value );
+#elif BLAZE_NEON_MODE
+   return neon_dup_detail::dup64( value, BoolConstant< IsSigned_v<T> >{} );
 #else
    return value;
 #endif
@@ -301,6 +402,8 @@ BLAZE_ALWAYS_INLINE const EnableIf_t< IsIntegral_v<T> && HasSize_v<T,8UL>
    return _mm256_set_epi64x( value.imag(), value.real(), value.imag(), value.real() );
 #elif BLAZE_SSE2_MODE
    return _mm_set_epi64x( value.imag(), value.real() );
+#elif BLAZE_NEON_MODE
+   return set_neon_detail::setc64( value );
 #else
    return value;
 #endif
@@ -332,6 +435,8 @@ BLAZE_ALWAYS_INLINE const SIMDfloat set( float value ) noexcept
    return _mm256_set1_ps( value );
 #elif BLAZE_SSE_MODE
    return _mm_set1_ps( value );
+#elif BLAZE_NEON_MODE
+   return vdupq_n_f32( value );
 #else
    return value;
 #endif
@@ -358,6 +463,8 @@ BLAZE_ALWAYS_INLINE const SIMDcfloat set( const complex<float>& value ) noexcept
                          value.imag(), value.real(), value.imag(), value.real() );
 #elif BLAZE_SSE_MODE
    return _mm_set_ps( value.imag(), value.real(), value.imag(), value.real() );
+#elif BLAZE_NEON_MODE
+   return float32x4_t{ value.real(), value.imag(), value.real(), value.imag() };
 #else
    return value;
 #endif
@@ -389,6 +496,8 @@ BLAZE_ALWAYS_INLINE const SIMDdouble set( double value ) noexcept
    return _mm256_set1_pd( value );
 #elif BLAZE_SSE2_MODE
    return _mm_set1_pd( value );
+#elif BLAZE_NEON_MODE
+   return vdupq_n_f64( value );
 #else
    return value;
 #endif
@@ -412,6 +521,8 @@ BLAZE_ALWAYS_INLINE const SIMDcdouble set( const complex<double>& value ) noexce
    return _mm256_set_pd( value.imag(), value.real(), value.imag(), value.real() );
 #elif BLAZE_SSE2_MODE
    return _mm_set_pd( value.imag(), value.real() );
+#elif BLAZE_NEON_MODE
+   return float64x2_t{ value.real(), value.imag() };
 #else
    return value;
 #endif
