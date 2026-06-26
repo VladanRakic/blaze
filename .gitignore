@@ -3,4 +3,5 @@
 .vscode
 build
 blazetest/build-neon-qemu/
+benchmarks/build/
 
